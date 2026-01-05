@@ -1,0 +1,52 @@
+# version: "3.8"
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: aidaohang-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "123456"
+      MYSQL_DATABASE: "aidaohang"
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p123456"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  backend:
+    build:
+      context: .
+      dockerfile: websiteapp/tools/Docker/Dockerfile.backend
+    image: aidaohang-backend:v1.0
+    container_name: aidaohang-backend
+    restart: always
+    environment:
+      DB_ENGINE: "mysql"
+      DB_HOST: "mysql"
+      DB_PORT: "3306"
+      DB_USER: "root"
+      DB_PASSWORD: "123456"
+      DB_NAME: "aidaohang"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - ./data/media:/WebsiteGuide/websiteapp/media
+      - ./websiteapp/logs:/WebsiteGuide/websiteapp/logs
+  frontend:
+    build:
+      context: .
+      dockerfile: websitefronted/tools/Docker/Dockerfile.frontend
+    image: aidaohang-frontend:v1.0
+    container_name: aidaohang-frontend
+    restart: always
+    depends_on:
+      backend:
+        condition: service_started
+    ports:
+      - "8093:8098"
+volumes:
+  mysql_data:

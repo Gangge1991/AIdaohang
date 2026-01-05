@@ -1,0 +1,9 @@
+*.pyc
+__pycache__/
+/.idea/
+/db.sqlite3
+.venv/
+data/
+.python-version
+pyproject.toml
+uv.lock

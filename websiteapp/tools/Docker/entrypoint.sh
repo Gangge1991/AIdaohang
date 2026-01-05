@@ -1,0 +1,44 @@
+#!/bin/sh
+set -e
+
+# init nginx
+if [ ! -d /run/nginx ]; then
+    mkdir -p /run/nginx
+    chown -R nginx.nginx /run/nginx
+fi
+
+# init supervisor
+if [ ! -f /run/supervisor.sock ];then
+    touch /run/supervisor.sock
+    chmod 777 /run/supervisor.sock
+    unlink /run/supervisor.sock
+fi
+
+# init app
+DB_ENGINE=${DB_ENGINE:-mysql}
+if [ "$DB_ENGINE" = "mysql" ]; then
+    export DB_HOST=${DB_HOST:-localhost}
+    export DB_PORT=${DB_PORT:-3307}
+    export DB_USER=${DB_USER:-root}
+    export DB_PASSWORD=${DB_PASSWORD:-123456}
+    export DB_NAME=${DB_NAME:-aidaohang}
+    cd /WebsiteGuide
+    i=0
+    until python manage.py updatedb; do
+        i=$((i+1))
+        if [ "$i" -ge 30 ]; then
+            exit 1
+        fi
+        sleep 2
+    done
+    python manage.py useradd -u admin -p admin -s -n 管理员 || true
+else
+    if [ ! -f /WebsiteGuide/db.sqlite3 ]; then
+        cd /WebsiteGuide
+        python manage.py updatedb
+        python manage.py useradd -u admin -p admin -s -n 管理员
+    fi
+fi
+
+nginx
+supervisord -c /etc/supervisord.conf
