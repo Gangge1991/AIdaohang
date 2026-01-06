@@ -2,7 +2,7 @@
   <Sider :style="{position: 'fixed', height: '100vh', left: 0, overflow: 'auto'}">
     <div class="logo-con">
         <span style="line-height: 60px; font-weight: 800; font-size: 20px; color: white;">
-          Website Guide
+          AI导航网
         </span>
     </div>
     <Menu theme="light" width="auto" @on-select="anchor" @on-open-change="handleopen" :accordion="true"

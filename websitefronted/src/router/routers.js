@@ -14,7 +14,7 @@ export const appRouters = [
     component: LayOut,
     redirect: '/websites',
     children: [
-      {path: 'websites', name: 'websites', component: () => import('../components/Websites'),meta:{title:"websiteguide"}},
+      {path: 'websites', name: 'websites', component: () => import('../components/Websites'),meta:{title:"AI导航网"}},
     ]
   },
   {
